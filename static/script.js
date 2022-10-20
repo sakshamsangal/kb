@@ -60,14 +60,14 @@ function filterJson(data, string) {
     arr = [];
     for (var key in data)
         if (typeof (data[key]) == 'object' && data[key] != null) {
-            if (data['name'].indexOf(string) <= -1) {
+            if (data['name'].toLowerCase().indexOf(string) <= -1) {
                 for (var i = 0; i < data.children.length; i++) {
                     arr = arr.concat(filterJson(data.children[i], string));
                 }
                 return arr;
             }
         } else {
-            if (data['name'].indexOf(string) > -1) {
+            if (data['name'].toLowerCase().indexOf(string) > -1) {
                 arr = arr.concat(data);
                 return arr;
             }
@@ -87,7 +87,13 @@ function solve() {
 
 function get_data(end_point) {
     fetch("http://127.0.0.1:5000" + end_point, {
-        method: "get",
+        body: JSON.stringify({
+            'path': document.getElementById('base_path').value
+        }),
+        headers: {
+            "Content-Type": "application/json",
+        },
+        method: "post"
     })
         .then((response) => response.json())
         .then((data) => {
@@ -145,5 +151,5 @@ function myFun1() {
 
 function myFun(path) {
     console.log(path)
-    get_content({path: '.' + path}, "/view");
+    get_content({path: path}, "/view");
 }

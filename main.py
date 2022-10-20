@@ -20,8 +20,10 @@ class MyItem(BaseModel):
     fn: str
     data: str
 
+
 class MyPath(BaseModel):
     path: str
+
 
 # origins = [
 #     "http://localhost.tiangolo.com",
@@ -50,17 +52,24 @@ def path_to_dict(path, xpath):
     return d
 
 
-@app.get("/see-file")
-async def see_file():
+base_path = ''
+
+
+@app.post("/see-file")
+async def see_file(item: MyPath):
     # ls = []
     # for x in glob.glob('template/*'):
     #     fn = x.rsplit('\\', 1)[1]
     #     ls.append(fn)
     # return {"files": ls}
-    x = path_to_dict('guide', '')
+    global base_path
+    base_path = item.path.rsplit('/', 1)[0]
+    print(base_path)
+    x = path_to_dict(item.path, '')
     # with open('data.json', 'w') as f:
     #     json.dump(x, f)
     return x
+
 
 # @app.post("/file", status_code=200)
 # async def create_upload_files(files: List[UploadFile] = File(...)):
@@ -91,14 +100,14 @@ async def save(item: MyItem):
     print(item.fn)
     x = item.fn.rsplit('/', 1)[0]
     os.makedirs(f'{x}', exist_ok=True)
-    with open(f'{item.fn}', 'w') as f:
+    with open(f'{base_path}{item.fn}', 'w') as f:
         f.write(item.data)
     return {'status': 'True'}
 
 
 @app.post("/view")
 async def view(item: MyPath):
-    with open(f'{item.path}', 'r') as f:
+    with open(f'{base_path}{item.path}', 'r') as f:
         x = f.read()
     return {'data': x}
 
