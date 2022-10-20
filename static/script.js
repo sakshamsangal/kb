@@ -125,7 +125,7 @@ function get_content(sendObj, end_point) {
 xmlBtn.addEventListener("click", function () {
     let justHtml = editor.root.innerHTML;
     let sendObj = {
-        fn: '.' + document.querySelector("#fn").value,
+        fn: document.querySelector("#fn").value,
         data: justHtml
     };
     uploadUrl(sendObj, "/save");
