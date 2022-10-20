@@ -1,0 +1,33 @@
+body {
+    background-color: #ECEFF1;
+}
+
+.active {
+    display: block;
+}
+
+.nested {
+    display: none;
+}
+
+.folder-container {
+    cursor: pointer;
+    padding: 0 10px;
+}
+
+.folder-wrapper {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+.file-item,
+.folder-item {
+    padding-left: 20px;
+    list-style-type: none;
+}
+
+
+.folder-item {
+    font-weight: bold;
+}

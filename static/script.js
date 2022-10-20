@@ -1,11 +1,12 @@
 var ls = [
     ['bold', 'italic', 'underline'],
-    ['code-block'],
+    ['blockquote', 'code-block'],
     [{'header': [1, 2, 3, 4, 5, 6, false]}],
     ['image', 'link'],
     [{'color': []}, {'background': []}],
 
 ]
+var folders = ''
 var editor = new Quill('#editor', {
     modules: {
         toolbar: ls
@@ -15,8 +16,9 @@ var editor = new Quill('#editor', {
 
 let xmlBtn = document.querySelector("#my_submit");
 let output = document.querySelector("#output");
-let files = document.querySelector("#files");
+let files = document.querySelector("#folders");
 let fn = document.querySelector("#fn");
+let search_id = document.getElementById('filterInput');
 
 function uploadUrl(sendObj, end_point) {
     fetch("http://127.0.0.1:5000" + end_point, {
@@ -39,18 +41,48 @@ function uploadUrl(sendObj, end_point) {
         });
 }
 
-var my_arr = []
-
-function makeList(obj, xpath) {
-    if (obj['type'] === 'file') {
-        my_arr.push(`<li><a href="#" onclick="myFun('${xpath}/${obj['name']}')">${obj['name']}</a></li>`)
-    } else {
-        my_arr.push(`<li><span class="caret caret-down">${obj['name']}</span><ul class="nested active">`)
-        for (let i = 0; i < obj['children'].length; i++) {
-            makeList(obj['children'][i], xpath + '/' + obj['name'])
+function displayJsonTree(data) {
+    var htmlRetStr = "<ul class='folder-container'>";
+    for (var key in data) {
+        if (typeof (data[key]) == 'object' && data[key] != null) {
+            htmlRetStr += displayJsonTree(data[key]);
+            htmlRetStr += '</ul></li>';
+        } else if (data[key] === 'dir') {
+            htmlRetStr += "<li class='folder-item'><i class='bi bi-folder'></i> " + data["name"] + "</li><li class='folder-wrapper'>";
+        } else if (key === 'name' && data['type'] !== 'dir') {
+            htmlRetStr += `<li class='file-item' onclick="myFun('${data['xpath']}/${data['name']}')"><i class="bi bi-card-list"></i> ` + data['name'] + "</li>";
         }
-        my_arr.push('</ul></li>')
     }
+    return (htmlRetStr);
+}
+
+function filterJson(data, string) {
+    arr = [];
+    for (var key in data)
+        if (typeof (data[key]) == 'object' && data[key] != null) {
+            if (data['name'].indexOf(string) <= -1) {
+                for (var i = 0; i < data.children.length; i++) {
+                    arr = arr.concat(filterJson(data.children[i], string));
+                }
+                return arr;
+            }
+        } else {
+            if (data['name'].indexOf(string) > -1) {
+                arr = arr.concat(data);
+                return arr;
+            }
+        }
+}
+
+function solve() {
+    let toSearch = search_id.value;
+    if (toSearch.length === 0) {
+        files.innerHTML = displayJsonTree(folders);
+    } else {
+        let str = "Searching for: " + search_id.value + "\n";
+        files.innerHTML = str + displayJsonTree(filterJson(folders, search_id.value));
+    }
+    myFun1()
 }
 
 function get_data(end_point) {
@@ -59,10 +91,9 @@ function get_data(end_point) {
     })
         .then((response) => response.json())
         .then((data) => {
-            files.innerHTML = ''
-            my_arr = []
-            makeList(data, '')
-            files.innerHTML = my_arr.join("");
+            // files.innerHTML = ''
+            files.innerHTML = displayJsonTree(data);
+            folders = data
             myFun1()
         })
         .catch((err) => {
@@ -103,17 +134,16 @@ xmlBtn.addEventListener("click", function () {
 
 function myFun1() {
     console.log('myFun1')
-    var toggler = document.getElementsByClassName("caret");
+    var toggler = document.getElementsByClassName("folder-item");
     var i;
-
     for (i = 0; i < toggler.length; i++) {
         toggler[i].addEventListener("click", function () {
-            this.parentElement.querySelector(".nested").classList.toggle("active");
-            this.classList.toggle("caret-down");
+            this.parentElement.querySelector(".folder-wrapper").classList.toggle("nested");
         });
     }
 }
 
 function myFun(path) {
+    console.log(path)
     get_content({path: '.' + path}, "/view");
 }

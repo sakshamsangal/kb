@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 import glob
@@ -38,13 +39,14 @@ app.add_middleware(
 )
 
 
-def path_to_dict(path):
+def path_to_dict(path, xpath):
     d = {'name': os.path.basename(path)}
     if os.path.isdir(path):
-        d['type'] = "directory"
-        d['children'] = [path_to_dict(os.path.join(path, x)) for x in os.listdir(path)]
+        d['type'] = "dir"
+        d['children'] = [path_to_dict(os.path.join(path, x), xpath + '/' + d['name']) for x in os.listdir(path)]
     else:
         d['type'] = "file"
+        d['xpath'] = xpath
     return d
 
 
@@ -55,8 +57,10 @@ async def see_file():
     #     fn = x.rsplit('\\', 1)[1]
     #     ls.append(fn)
     # return {"files": ls}
-    return path_to_dict('guide')
-
+    x = path_to_dict('guide', '')
+    # with open('data.json', 'w') as f:
+    #     json.dump(x, f)
+    return x
 
 # @app.post("/file", status_code=200)
 # async def create_upload_files(files: List[UploadFile] = File(...)):
@@ -84,6 +88,7 @@ async def create_upload_file(file: List[UploadFile] = File(...)):
 
 @app.post("/save")
 async def save(item: MyItem):
+    print(item.fn)
     x = item.fn.rsplit('/', 1)[0]
     os.makedirs(f'{x}', exist_ok=True)
     with open(f'{item.fn}', 'w') as f:
