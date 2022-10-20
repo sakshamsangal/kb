@@ -1,10 +1,9 @@
-```
+<p>```
 1st node  = root
 leaf node = 0 child
 degree = number of child a node possess
+
 internal node = non leaf nodes
-
-
 every node has atmost 2 child.
 every node 3 fields - left, data, right
 heap and segemented tree are implemented using array
@@ -94,7 +93,7 @@ class BinaryTree {
     void bfs() {
         if (root != null) {
 
-            Queue<Node> queue = new LinkedList<>();
+            Queue</p><p> queue = new LinkedList&lt;&gt;();
             queue.add(root);
 
             // adding child of parents
@@ -127,4 +126,4 @@ class Main {
     }
 }
 
-```
+```</p>

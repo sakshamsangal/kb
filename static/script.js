@@ -48,7 +48,7 @@ function displayJsonTree(data) {
             htmlRetStr += displayJsonTree(data[key]);
             htmlRetStr += '</ul></li>';
         } else if (data[key] === 'dir') {
-            htmlRetStr += "<li class='folder-item'><i class='bi bi-folder'></i> " + data["name"] + "</li><li class='folder-wrapper'>";
+            htmlRetStr += "<li class='folder-item'><i class='bi bi-folder'></i> " + data["name"] + "</li><li class='folder-wrapper nested'>";
         } else if (key === 'name' && data['type'] !== 'dir') {
             htmlRetStr += `<li class='file-item' onclick="myFun('${data['xpath']}/${data['name']}')"><i class="bi bi-card-list"></i> ` + data['name'] + "</li>";
         }
