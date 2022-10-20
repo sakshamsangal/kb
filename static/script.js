@@ -1,5 +1,3 @@
-// listree();
-
 var ls = [
     ['bold', 'italic', 'underline'],
     ['code-block'],
@@ -14,6 +12,8 @@ var editor = new Quill('#editor', {
     },
     theme: 'snow'
 });
+
+let xmlBtn = document.querySelector("#my_submit");
 let output = document.querySelector("#output");
 let files = document.querySelector("#files");
 let fn = document.querySelector("#fn");
@@ -24,11 +24,15 @@ function uploadUrl(sendObj, end_point) {
         headers: {
             "Content-Type": "application/json",
         },
-        method: "post",
+        method: "post"
     })
         .then((response) => response.json())
         .then((data) => {
             output.innerHTML = JSON.stringify(data);
+            setTimeout(() => {
+                output.innerHTML = ''
+                // output.style.display = 'none';
+            }, 2000);
         })
         .catch((err) => {
             output.innerHTML = JSON.stringify(err);
@@ -41,7 +45,7 @@ function makeList(obj, xpath) {
     if (obj['type'] === 'file') {
         my_arr.push(`<li><a href="#" onclick="myFun('${xpath}/${obj['name']}')">${obj['name']}</a></li>`)
     } else {
-        my_arr.push(`<li><span class="caret">${obj['name']}</span><ul class="nested">`)
+        my_arr.push(`<li><span class="caret caret-down">${obj['name']}</span><ul class="nested active">`)
         for (let i = 0; i < obj['children'].length; i++) {
             makeList(obj['children'][i], xpath + '/' + obj['name'])
         }
@@ -55,7 +59,7 @@ function get_data(end_point) {
     })
         .then((response) => response.json())
         .then((data) => {
-            files.innerHTML= ''
+            files.innerHTML = ''
             my_arr = []
             makeList(data, '')
             files.innerHTML = my_arr.join("");
@@ -87,11 +91,10 @@ function get_content(sendObj, end_point) {
         });
 }
 
-let xmlBtn = document.querySelector("#my_submit");
 xmlBtn.addEventListener("click", function () {
     let justHtml = editor.root.innerHTML;
     let sendObj = {
-        fn: document.querySelector("#fn").value,
+        fn: '.' + document.querySelector("#fn").value,
         data: justHtml
     };
     uploadUrl(sendObj, "/save");
@@ -112,5 +115,5 @@ function myFun1() {
 }
 
 function myFun(path) {
-    get_content({path: path}, "/view");
+    get_content({path: '.' + path}, "/view");
 }

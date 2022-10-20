@@ -55,7 +55,7 @@ async def see_file():
     #     fn = x.rsplit('\\', 1)[1]
     #     ls.append(fn)
     # return {"files": ls}
-    return path_to_dict('template')
+    return path_to_dict('guide')
 
 
 # @app.post("/file", status_code=200)
@@ -85,15 +85,15 @@ async def create_upload_file(file: List[UploadFile] = File(...)):
 @app.post("/save")
 async def save(item: MyItem):
     x = item.fn.rsplit('/', 1)[0]
-    os.makedirs(f'.{x}', exist_ok=True)
-    with open(f'.{item.fn}', 'w') as f:
+    os.makedirs(f'{x}', exist_ok=True)
+    with open(f'{item.fn}', 'w') as f:
         f.write(item.data)
     return {'status': 'True'}
 
 
 @app.post("/view")
 async def view(item: MyPath):
-    with open(f'.{item.path}', 'r') as f:
+    with open(f'{item.path}', 'r') as f:
         x = f.read()
     return {'data': x}
 
