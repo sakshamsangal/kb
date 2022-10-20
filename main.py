@@ -1,3 +1,4 @@
+import os
 import shutil
 import glob
 from typing import List, Optional
@@ -11,7 +12,6 @@ from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
-
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
@@ -19,6 +19,8 @@ class MyItem(BaseModel):
     fn: str
     data: str
 
+class MyPath(BaseModel):
+    path: str
 
 # origins = [
 #     "http://localhost.tiangolo.com",
@@ -36,13 +38,24 @@ app.add_middleware(
 )
 
 
+def path_to_dict(path):
+    d = {'name': os.path.basename(path)}
+    if os.path.isdir(path):
+        d['type'] = "directory"
+        d['children'] = [path_to_dict(os.path.join(path, x)) for x in os.listdir(path)]
+    else:
+        d['type'] = "file"
+    return d
+
+
 @app.get("/see-file")
 async def see_file():
-    ls = []
-    for x in glob.glob('template/*'):
-        fn = x.rsplit('\\', 1)[1]
-        ls.append(fn)
-    return {"files": ls}
+    # ls = []
+    # for x in glob.glob('template/*'):
+    #     fn = x.rsplit('\\', 1)[1]
+    #     ls.append(fn)
+    # return {"files": ls}
+    return path_to_dict('template')
 
 
 # @app.post("/file", status_code=200)
@@ -71,14 +84,16 @@ async def create_upload_file(file: List[UploadFile] = File(...)):
 
 @app.post("/save")
 async def save(item: MyItem):
-    with open(f'template/{item.fn}', 'w') as f:
+    x = item.fn.rsplit('/', 1)[0]
+    os.makedirs(f'.{x}', exist_ok=True)
+    with open(f'.{item.fn}', 'w') as f:
         f.write(item.data)
     return {'status': 'True'}
 
 
-@app.get("/view/{path}")
-async def view(path):
-    with open(f'template/{path}', 'r') as f:
+@app.post("/view")
+async def view(item: MyPath):
+    with open(f'.{item.path}', 'r') as f:
         x = f.read()
     return {'data': x}
 

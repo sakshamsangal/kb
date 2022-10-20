@@ -1,0 +1,28 @@
+{
+  "name": "template",
+  "type": "directory",
+  "children": [
+    {
+      "name": "array.html",
+      "type": "file"
+    },
+    {
+      "name": "dsa",
+      "type": "directory",
+      "children": [
+        {
+          "name": "array.html",
+          "type": "file"
+        },
+        {
+          "name": "w1.html",
+          "type": "file"
+        }
+      ]
+    },
+    {
+      "name": "w1.html",
+      "type": "file"
+    }
+  ]
+}
