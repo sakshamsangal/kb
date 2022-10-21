@@ -1,9 +1,6 @@
-import json
 import os
 import shutil
-import glob
-from typing import List, Optional
-
+from typing import List
 import uvicorn
 from fastapi import UploadFile, File
 from fastapi import FastAPI
@@ -11,9 +8,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
 
+base_path = ''
 app = FastAPI()
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+script_dir = os.path.dirname(__file__)
+st_abs_file_path = os.path.join(script_dir, "static/")
+app.mount("/static", StaticFiles(directory=st_abs_file_path), name="static")
 
 
 class MyItem(BaseModel):
@@ -24,13 +24,6 @@ class MyItem(BaseModel):
 class MyPath(BaseModel):
     path: str
 
-
-# origins = [
-#     "http://localhost.tiangolo.com",
-#     "https://localhost.tiangolo.com",
-#     "http://localhost",
-#     "http://localhost:8080",
-# ]
 
 app.add_middleware(
     CORSMiddleware,
@@ -52,16 +45,10 @@ def path_to_dict(path, xpath):
     return d
 
 
-base_path = ''
 
 
 @app.post("/see-file")
 async def see_file(item: MyPath):
-    # ls = []
-    # for x in glob.glob('template/*'):
-    #     fn = x.rsplit('\\', 1)[1]
-    #     ls.append(fn)
-    # return {"files": ls}
     global base_path
     base_path = item.path.rsplit('/', 1)[0]
     print(base_path)
@@ -69,22 +56,6 @@ async def see_file(item: MyPath):
     # with open('data.json', 'w') as f:
     #     json.dump(x, f)
     return x
-
-
-# @app.post("/file", status_code=200)
-# async def create_upload_files(files: List[UploadFile] = File(...)):
-#     for file in files:
-#         destination_file_path = "./" + file.filename  # output file path
-#         async with aiofiles.open(destination_file_path, 'wb') as out_file:
-#             while content := await file.read(1024):  # async read file chunk
-#                 await out_file.write(content)  # async write file chunk
-#     return {"Result": "OK", "filenames": [file.filename for file in files]}
-
-# @app.post("/file")
-# async def file_upload(item: UploadFile = File(...)):
-#     with open(f'{item.filename}', 'wb') as buffer:
-#         shutil.copyfileobj(item.file, buffer)
-#     return {'status': 'True'}
 
 
 @app.post("/files")
