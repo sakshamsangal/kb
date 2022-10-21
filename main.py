@@ -68,12 +68,14 @@ async def create_upload_file(file: List[UploadFile] = File(...)):
 
 @app.post("/save")
 async def save(item: MyItem):
-    print(item.fn)
-    x = item.fn.rsplit('/', 1)[0]
-    os.makedirs(f'{x}', exist_ok=True)
-    with open(f'{base_path}{item.fn}', 'w') as f:
-        f.write(item.data)
-    return {'status': 'True'}
+    if item.fn == '':
+        return {'status': 'False'}
+    else:
+        x = item.fn.rsplit('/', 1)[0]
+        os.makedirs(f'{x}', exist_ok=True)
+        with open(f'{base_path}{item.fn}', 'w') as f:
+            f.write(item.data)
+        return {'status': 'True'}
 
 
 @app.post("/view")
